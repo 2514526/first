@@ -1,0 +1,12 @@
+完成picoCTF的第一个题目，用ssh取得权限
+
+我們拆解你輸入的那串指令的邏輯：
+ssh ctf-player @ titan.picoctf.net -p 49333
+
+ctf-player：你是誰（使用者名稱）。
+
+@：介系詞「在」。
+
+titan.picoctf.net：哪一棟大樓（地址/主機名稱）。
+
+-p 49333：走哪一個專屬通道（連接埠）。
