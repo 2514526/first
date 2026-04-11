@@ -1,0 +1,47 @@
+## 🚩 picoCTF 題解：where are the robots
+### 1. 題目資訊
+分類： Web Exploitation
+
+難度： Easy
+
+關鍵字： robots.txt, Information Disclosure, Web Reconnaissance
+
+### 2. 題目描述
+題目提供了一個網址，並詢問：「你能找到機器人嗎？」提示則暗示創作者可能將不想展示的東西藏在某個地方。
+
+### 3. 核心概念：什麼是 robots.txt？
+robots.txt 是一個存放於網站 根目錄 (Root Directory) 的純文字檔。其主要目的是導引搜尋引擎爬蟲（如 Googlebot），告知哪些路徑可以抓取，哪些路徑應該排除（Disallow）。
+
+在資安領域，這份檔案常被視為 「藏寶圖」，因為 Disallow 欄位中標註的路徑，往往包含開發者不希望公開的敏感頁面、管理後台或測試路徑。
+
+### 4. 解題步驟
+Step 1：定位偵察目標
+首先訪問題目給出的網址。根據題目名稱 robots 的暗示，手動在網址列輸入 /robots.txt 進行訪問：
+
+URL: http://<TARGET_URL>/robots.txt
+
+Step 2：分析檔案內容
+在 robots.txt 中，我觀察到以下關鍵內容：
+
+Plaintext
+User-agent: *
+Disallow: /fl4g_7h15_15_y0ur_53cr37.html
+這代表網站管理者禁止爬蟲存取 /fl4g_7h15_15_y0ur_53cr37.html 這個頁面。
+
+Step 3：存取禁區取得 Flag
+將該路徑貼回瀏覽器網址列：
+
+URL: http://<TARGET_URL>/fl4g_7h15_15_y0ur_53cr37.html
+
+訪問後，頁面直接顯示了 Flag 內容。
+
+### 5. 知識總結與反思
+Security through Obscurity (隱晦安全)： 開發者常誤以為「只要不放連結，別人就找不到」，但 robots.txt 反而暴露了敏感路徑。這提醒我們，不應依賴隱藏路徑來達成安全目的。
+
+資訊洩漏 (Information Disclosure)： 在進行 Web 滲透測試時，檢查 robots.txt、.git/、.env 等設定檔是第一步必做的標準流程 (Reconnaissance)。
+
+### 💡 常用指令/工具參考
+在 Linux 或 WSL 終端機中，也可以利用 curl 快速檢查：
+
+Bash
+curl http://<TARGET_URL>/robots.txt
