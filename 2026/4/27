@@ -1,0 +1,46 @@
+今天又是自己解决的一天，今天的题目是找flag
+有点奇怪，等等会附上Gemini的解释，简单来说就是
+按照密码的要求
+密码是对照输入是否符合
+  hashlib.sha256(username_trial).hexdigest()[8]
+最后的8会改成不同位子
+我是通过将题目中的username（定义好的）丢进哈希运算然后手动寻找对应数字+1的位子的内容
+
+另一个学习点，哈希256只吃2进位东西，不吃字串string，也就是不能吃a=“”的东西，要给他位元组bytes
+字串：用unicode编码储存的就是要求储存的文字
+位元组：本质为2进位的8位数，用于储存传输会用ASCII转换
+
+
+
+
+
+
+
+
+
+以下是Gemini总结：
+# picoCTF - keygenme-trial.py 解析與破解
+
+## 📝 題目概述
+本題提供了一支名為 `keygenme-trial.py` 的 Python 程式。該程式模擬了一個需要驗證「授權碼 (License Key)」的試用版軟體。目標是透過閱讀與分析原始碼，找出通過授權驗證的正確 Flag。
+
+## 🎯 核心考點
+1. **逆向工程 (Reverse Engineering)**：分析原始碼的驗證邏輯，而非強行破解。
+2. **雜湊演算法 (Cryptography - SHA-256)**：理解程式如何利用 SHA-256 對使用者名稱進行加密處理。
+3. **Python 程式碼追蹤**：理解字串索引 (String Indexing) 與資料型態 (String vs. Bytes) 的差異。
+
+## 🔍 解題思路與分析
+1. **定位驗證邏輯**：
+   在原始碼中找到 `check_key()` 函式，發現授權碼的長度必須與 `key_full_template_trial` 一致。
+2. **拆解 Flag 結構**：
+   Flag 由三個部分組成：
+   * 前綴 (Static): `picoCTF{1n_7h3_kk3y_of_`
+   * 動態密碼 (Dynamic): `xxxxxxxx` (需計算)
+   * 後綴 (Static): `}`
+3. **計算動態密碼**：
+   程式將使用者名稱 `b"BENNETT"` 進行 SHA-256 雜湊，並依照特定索引位置 `[4], [5], [3], [6], [2], [7], [1], [8]` 提取字元來驗證動態密碼區塊。
+4. **構造解答**：
+   透過手動計算或撰寫 Python 腳本（將對應索引的 Hash 字元組合），成功推導出正確的 Flag 並通過驗證。
+
+## 💡 延伸學習
+嘗試直接修改原始碼，撰寫自動化解密函式 (Auto-solver) 時，需注意 Python 中 `hashlib` 模組僅接受 `bytes` 型態的資料，需將字串進行 `.encode()` 或使用 `b"string"` 前綴才能成功計算雜湊值。
