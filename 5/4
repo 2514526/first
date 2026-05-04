@@ -1,0 +1,60 @@
+今天相对简单，考的是运用Linux内建的转换系统来转换字串得到flag
+其实相对简单如果使用第三方
+但有两点，1.要辨识它的编码方式，这是目前最困难的
+2.要知道要怎么下指令，像是rot13这种就不支援要靠tr来取代，用tr 'a-zA-Z' 'n-za-mN-ZA-M'
+tr就是取代，一个对一个的取代，可以用“-”来做到省略内容等
+
+
+
+
+
+
+以下是整理的重点和转换指令纲要：
+## 🛠️ Linux 文字轉換 (Text Transformations) 重點整理
+1. Base64 編解碼：base64
+用途：處理將二進位數據轉換為 ASCII 字串的常見編碼。
+
+關鍵指令：
+
+解碼 (Undo)：base64 -d。
+
+編碼：base64。
+
+資管觀點：Base64 結尾常出現的 = 是填充（Padding），看到它就要直覺反應是 Base64。
+
+2. 字元對映替換：tr (Translate)
+用途：一對一地替換、刪除或縮減字元。
+
+關鍵指令：
+
+符號替換：tr '-' '_' 或 tr '()' '{}'。
+
+ROT13 解密：tr 'A-Za-z' 'N-ZA-Mn-za-m'。
+
+資管觀點：tr 是按照位置（Position）映射的。例如 tr 'AB' 'XY' 代表 A 變 X，B 變 Y。
+
+3. 文字順序反轉：rev
+用途：將每一行的字元順序左右顛倒。
+
+關鍵指令：rev。
+
+資管觀點：當看到 )SGPbpvc 這種結尾像開頭的亂碼時，先試試 rev 往往有奇效。
+
+
+
+
+
+
+
+
+
+
+
+
+
+一个小整理关于判断编码方式：
+亂碼特徵,可能的編碼/加密,對應的 Linux 指令結尾有 = 或 ==，且只包含大小寫字母、數字、+、/          Base64                 base64 -d
+看起來像鏡像倒過來 (例如 }FTCoicp 對應 picoCTF{)                                              Reversed Text          rev
+只包含 0-9 和 a-f (十六進位)                                                                 Hexadecimal            xxd -r -p
+字母頻率正常，但拼不出來 (例如 cvpbPGS 對應 picoCTF)                                          ROT13 / Caesar         tr 'A-Za-z' 'N-ZA-Mn-za-m'
+特殊符號成對出錯 (例如用 ( 代替 {)                                                           Character Mapping       tr '()' '{}'
