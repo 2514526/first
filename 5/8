@@ -1,0 +1,7 @@
+今天没做题，研究了一下手机开vpn分型流量给电脑会怎么样
+
+Hotspot Routing Logic：預設情況下，行動裝置的網路共用（Tethering）流量不經過系統層級的 VPN TUN 介面。
+
+Encapsulation (封裝)：VPN 必須在流量產生的該台裝置上進行封裝，除非轉發設備（手機）具備明確的 Policy-based Routing (策略路由)。
+
+Security Insight：這說明了「手機掛 VPN，電腦不一定安全」。在不安全的 WiFi 下使用熱點，仍建議端點對端點（電腦到 VPN 伺服器）連線。
